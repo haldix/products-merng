@@ -1,6 +1,3 @@
-const users = require('../utils/users');
-const { PubSub } = require('apollo-server');
-const pubsub = new PubSub();
 const Query = {
   name() {
     return 'Dan';
@@ -20,7 +17,8 @@ const Query = {
       city: 'Albany',
     };
   },
-  users() {
+  users(parent, args, ctx, info) {
+    const { users } = ctx;
     return users;
   },
 };

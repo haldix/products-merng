@@ -1,11 +1,9 @@
 const { v4: uuidv4 } = require('uuid');
-const users = require('../utils/users');
-const { PubSub } = require('apollo-server');
-const pubsub = new PubSub();
 
 const Mutation = {
   addUser(parent, args, ctx, info) {
     const { name, age } = args;
+    const { users } = ctx;
     users.push({
       id: uuidv4(),
       name,
@@ -15,6 +13,7 @@ const Mutation = {
   },
   updateUser(parent, args, ctx, info) {
     const { id, name, age } = args;
+    const { users, pubsub } = ctx;
     const user = users.find((user) => user.id === id);
     if (!user) {
       throw new Error(`user with id ${id} does not exist.`);
@@ -31,6 +30,7 @@ const Mutation = {
     return user;
   },
   deleteUser(parent, args, ctx, info) {
+    const { users } = ctx;
     const index = users.findIndex((user) => user.id === args.id);
     if (index === -1) {
       throw new Error(`User with id ${args.id} does not exist.`);

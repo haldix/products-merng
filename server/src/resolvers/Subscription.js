@@ -1,9 +1,7 @@
-const { PubSub } = require('apollo-server');
-const pubsub = new PubSub();
-
 const Subscription = {
   update: {
     subscribe(parent, args, ctx, info) {
+      const { pubsub } = ctx;
       return pubsub.asyncIterator('update_user');
     },
   },
