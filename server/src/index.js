@@ -1,22 +1,15 @@
-const { ApolloServer, gql, PubSub } = require('apollo-server');
-const { v4: uuidv4 } = require('uuid');
+const { ApolloServer } = require('apollo-server');
 const Query = require('./resolvers/Query');
 const Mutation = require('./resolvers/Mutation');
-const Subscription = require('./resolvers/Subscription');
-const users = require('./utils/users');
-const pubsub = new PubSub();
+const users = require('./utils/functions');
 const typeDefs = require('./schema.js');
+require('../db/connection');
 
 const server = new ApolloServer({
   typeDefs,
   resolvers: {
     Query,
     Mutation,
-    Subscription,
-  },
-  context: {
-    users,
-    pubsub,
   },
 });
 
