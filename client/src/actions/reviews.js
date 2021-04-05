@@ -9,8 +9,9 @@ import {
   ADD_REVIEW_QUERY,
   DELETE_REVIEW_QUERY,
 } from '../utils/queries';
-import { getClient } from '../utils/common';
+import { getClient } from '../utils/client';
 import { getError, clearError } from './error';
+
 export const addReview = (skuId, review) => {
   return {
     type: ADD_REVIEW,
@@ -18,6 +19,7 @@ export const addReview = (skuId, review) => {
     review,
   };
 };
+
 export const getReviews = ({ skuId, reviews }) => {
   return {
     type: GET_REVIEWS,
@@ -25,23 +27,28 @@ export const getReviews = ({ skuId, reviews }) => {
     reviews,
   };
 };
+
 export const deleteReview = (reviewId) => {
   return {
     type: DELETE_REVIEW,
     reviewId,
   };
 };
+
 export const clearReviews = () => {
   return {
     type: CLEAR_REVIEWS,
   };
 };
+
 export const initiateGetReviews = (skuId) => {
   return (dispatch) => {
     const client = getClient(dispatch);
+
     const variables = {
       skuId,
     };
+
     return client
       .query({
         query: GET_REVIEWS_QUERY,
@@ -63,15 +70,19 @@ export const initiateGetReviews = (skuId) => {
       );
   };
 };
+
 export const initiateAddReview = (skuId, review) => {
   return (dispatch) => {
     const { title, comment } = review;
+
     const client = getClient(dispatch);
+
     const variables = {
       skuId,
       title,
       comment,
     };
+
     return client
       .mutate({
         mutation: ADD_REVIEW_QUERY,
@@ -88,12 +99,15 @@ export const initiateAddReview = (skuId, review) => {
       );
   };
 };
+
 export const initiateDeleteReview = (reviewId) => {
   return (dispatch) => {
     const client = getClient(dispatch);
+
     const variables = {
       reviewId,
     };
+
     return client
       .mutate({
         mutation: DELETE_REVIEW_QUERY,

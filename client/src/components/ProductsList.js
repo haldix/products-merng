@@ -5,14 +5,18 @@ import {
   initiateGetProducts,
   initiateDeleteProduct,
 } from '../actions/products';
+import { initiateGetReviews } from '../actions/reviews';
+import { clearError } from '../actions/error';
 import Product from './Product';
 import Layout from './Layout';
-
 class ProductsList extends React.Component {
   state = {
     products: [],
     errorMsg: '',
     isLoading: false,
+    selectedProduct: null,
+    reviews: null,
+    isOpen: false,
   };
   componentDidMount() {
     this.setState({ isLoading: true });
@@ -30,26 +34,69 @@ class ProductsList extends React.Component {
     if (prevProps.error !== this.props.error) {
       this.setState({ errorMsg: this.props.error });
     }
+    if (
+      prevProps.reviews.skuId !== this.props.reviews.skuId ||
+      (this.props.reviews.list &&
+        prevProps.reviews.list.length !== this.props.reviews.list.length)
+    ) {
+      this.setState({ reviews: this.props.reviews });
+    }
   }
+  handleProductModalClose = () => {
+    this.props.dispatch(clearError());
+    this.setState({ isOpen: false });
+  };
   handleActionBtnClick = (type, skuId, name) => {
     if (type === 'edit') {
-      // TODO: add code for edit
+      this.props.history.push({
+        pathname: `/edit/${skuId}`,
+        state: { type, skuId },
+      });
     } else if (type === 'view') {
-      // TODO: add code for view
+      this.setState(
+        (prevState) => ({
+          isOpen: !prevState.isOpen,
+          selectedProduct: prevState.products.find(
+            (product) => product.skuId === skuId
+          ),
+        }),
+        () => {
+          this.props.dispatch(
+            initiateGetReviews(this.state.selectedProduct.skuId)
+          );
+        }
+      );
     } else if (type === 'delete') {
       const shouldDelete = window.confirm(
         `Are you sure you want to delete product with name ${name}?`
       );
       if (shouldDelete) {
         this.setState({ errorMsg: '' });
-        this.props.dispatch(initiateDeleteProduct(skuId));
+        this.props.dispatch(initiateDeleteProduct(skuId)).then(() => {
+          const { errorMsg } = this.state;
+          if (errorMsg === '') {
+            const { history } = this.props;
+            history.push('/');
+          }
+        });
       }
     }
   };
   render() {
-    const { products, errorMsg, isLoading } = this.state;
+    const {
+      products,
+      errorMsg,
+      isLoading,
+      isOpen,
+      reviews,
+      selectedProduct,
+    } = this.state;
     const propsToPass = {
+      selectedProduct,
+      isOpen,
+      reviews,
       handleActionBtnClick: this.handleActionBtnClick,
+      handleProductModalClose: this.handleProductModalClose,
     };
     return (
       <Layout>
@@ -88,12 +135,11 @@ class ProductsList extends React.Component {
     );
   }
 }
-
 const mapStateToProps = (state) => {
   return {
     products: state.products,
     error: state.error,
+    reviews: state.reviews,
   };
 };
-
 export default connect(mapStateToProps)(ProductsList);
